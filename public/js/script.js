@@ -1,3 +1,4 @@
+
 // Example starter JavaScript for disabling form submissions if there are invalid fields
 (() => {
     'use strict'
@@ -67,6 +68,6 @@
         })
         .catch((error) => {
             console.error("Error initiating payment:", error);
-            alert("Something went wrong!");
+            alert("You need to login first!");
         });
 }

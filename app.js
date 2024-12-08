@@ -15,7 +15,7 @@ const flash= require("connect-flash");
 const passport = require("passport");
 const LocalStrategy =require("passport-local");
 const User= require("./models/user.js");
-
+const {validateReview, isLoggedIn, isReviewAuthor}= require("./middleware.js");
 
 const listingRouter=require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
@@ -94,7 +94,7 @@ app.use((req,res,next)=>{
     next();
 });
 
-app.post("/create-order", async (req, res) => {
+app.post("/create-order",isLoggedIn, async (req, res) => {
     try {
         console.log("Request body:", req.body); // Debugging log
         const { amount } = req.body;
