@@ -21,6 +21,14 @@ const listingRouter=require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
+const Razorpay = require("razorpay");
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+
 const dbUrl=process.env.ATLASDB_URL;
 
 main()
@@ -85,6 +93,30 @@ app.use((req,res,next)=>{
     res.locals.currUser =req.user;
     next();
 });
+
+app.post("/create-order", async (req, res) => {
+    try {
+        console.log("Request body:", req.body); // Debugging log
+        const { amount } = req.body;
+
+        if (!amount || typeof amount !== "number") {
+            return res.status(400).json({ error: "Invalid or missing amount" });
+        }
+
+        const order = await razorpay.orders.create({
+            amount: amount * 100, // Convert to paise
+            currency: "INR",
+            receipt: `receipt_${Date.now()}`,
+        });
+
+        res.json({ orderId: order.id });
+    } catch (error) {
+        console.error("Error creating Razorpay order:", error);
+        res.status(500).json({ error: "Something went wrong while creating the order." });
+    }
+});
+
+
 
 // app.get("/demouser", async(req,res)=>{
 //     let fakeUser = new User({

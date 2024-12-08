@@ -15,13 +15,14 @@
     }
 
     .fa-compass{
-        color:#fe424d;
+        color:#30a47c;
         font-size:2rem;
     }
 
     .nav-link{
         color: #222222 !important;
     }
+
 
     /* Footer */
 
@@ -95,13 +96,13 @@
 
     /* New Page */
     .add-btn{
-        background-color: #fe424d !important;
+        background-color: #30a47c !important;
         border:none !important;
     }
 
     /* Edit Page */
     .edit-btn{
-        background-color: #fe424d !important;
+        background-color: #30a47c !important;
         border:none !important;
     }
 
@@ -124,3 +125,7 @@
         height: 400px;
         width:80vh;
     } */
+
+    .green{
+        background-color: #30a47c !important;
+    }

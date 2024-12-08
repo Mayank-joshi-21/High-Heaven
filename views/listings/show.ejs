@@ -32,9 +32,10 @@
         <div class="col-md-6 mx-auto">
             <div class="card shadow-sm">
                 <div class="card-body m-3">
-                    <h5 class="card-title">
+                    <h5 id="price" data-price="<%= listing.price %>">
                         &#8377;<%= listing.price.toLocaleString("en-IN") %> <small class="text-muted">per night</small>
                     </h5>
+                    
                     <form>
                         <div class="row mb-3">
                             <div class="col-6">
@@ -56,7 +57,7 @@
                             </select>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">Reserve</button>
+                            <button type="button" class="btn btn-primary btn-lg green" onclick="payNow()">Reserve</button>
                         </div>
                     </form>
                     <p class="text-muted mt-3 text-center">You won't be charged yet</p>
