@@ -24,11 +24,12 @@
         </script>    
         </div>
     <br>
-
+        <br>
+        
     <% if (currUser && currUser._id.equals(listing.owner._id)) { %>
         <!-- Hinglish Comment: Conditional check refined, ensure listing.owner exists -->
         <div class="btns">
-            <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
+            <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark col-2 offset-3 edit-btn" >Edit</a>
             <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" style="display:inline;">
                 <button class="btn btn-dark offset-5">Delete</button>
             </form>
