@@ -1,0 +1,31 @@
+<% layout("/layouts/boilerplate") %>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">All Bookings</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Amount</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Guests</th>
+                    <th>Order ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% bookings.forEach(booking => { %>
+                    <tr>
+                        <td><%= booking._id %></td>
+                        <td>&#8377;<%= booking.amount.toLocaleString("en-IN") %></td>
+                        <td><%= new Date(booking.checkin).toLocaleDateString() %></td>
+                        <td><%= new Date(booking.checkout).toLocaleDateString() %></td>
+                        <td><%= booking.guests %></td>
+                        <td><%= booking.orderId %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

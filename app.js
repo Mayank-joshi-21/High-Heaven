@@ -15,6 +15,7 @@ const flash= require("connect-flash");
 const passport = require("passport");
 const LocalStrategy =require("passport-local");
 const User= require("./models/user.js");
+const Booking = require("./models/booking.js");
 const {validateReview, isLoggedIn, isReviewAuthor}= require("./middleware.js");
 
 const listingRouter=require("./routes/listing.js");
@@ -48,6 +49,8 @@ app.use(express.urlencoded({extended:true}));
 app.use(methodOverride("_method"));
 app.engine("ejs",ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.json()); // To parse incoming JSON bodies
+
 
 const store = MongoStore.create({
     mongoUrl: dbUrl,
@@ -94,28 +97,92 @@ app.use((req,res,next)=>{
     next();
 });
 
-app.post("/create-order",isLoggedIn, async (req, res) => {
+app.post("/create-order", isLoggedIn, async (req, res) => {
     try {
-        console.log("Request body:", req.body); // Debugging log
-        const { amount } = req.body;
+        const { amount, checkin, checkout, guests } = req.body;
+        console.log("Received data:", req.body); // Log the request body for debugging
 
-        if (!amount || typeof amount !== "number") {
-            return res.status(400).json({ error: "Invalid or missing amount" });
+        // Validate required fields
+        if (!amount || typeof amount !== "number" || amount <= 0 || !checkin || !checkout || !guests) {
+            return res.status(400).json({ error: "Missing required fields" });
         }
 
+        // Create Razorpay order
         const order = await razorpay.orders.create({
             amount: amount * 100, // Convert to paise
             currency: "INR",
             receipt: `receipt_${Date.now()}`,
         });
 
-        res.json({ orderId: order.id });
+        console.log("Razorpay order created:", order);
+
+        if (!order || !order.id) {
+            return res.status(500).json({ error: "Failed to create Razorpay order" });
+        }
+
+        // Save booking data into the database
+        const bookingData = {
+            amount,
+            checkin,
+            checkout,
+            guests,
+            orderId: order.id, // Save Razorpay order ID
+        };
+
+        const booking = await Booking.create(bookingData); // Save booking to the database
+        console.log("Booking saved to database:", booking);
+
+        res.json({ orderId: order.id, bookingId: booking._id }); // Return both orderId and bookingId
     } catch (error) {
-        console.error("Error creating Razorpay order:", error);
-        res.status(500).json({ error: "Something went wrong while creating the order." });
+        console.error("Error creating order or saving booking:", error);
+        res.status(500).json({ error: "Something went wrong while creating the order or saving the booking." });
     }
 });
 
+
+
+// POST endpoint to update the booking after successful payment
+app.post("/update-booking", async (req, res) => {
+    const { paymentId, orderId } = req.body;
+
+    console.log("Payment received", req.body);  // Debug the received data
+
+    // Check if paymentId and orderId are present
+    if (!paymentId || !orderId) {
+        return res.status(400).json({ error: "Invalid data. Payment ID and Order ID are required." });
+    }
+
+    try {
+        // Update the booking using the orderId
+        const booking = await Booking.findOneAndUpdate(
+            { orderId: orderId },  // Find the booking by orderId
+            { paymentId: paymentId, status: 'paid' },  // Update paymentId and status
+            { new: true }  // Return the updated document
+        );
+
+        if (!booking) {
+            return res.status(404).json({ error: "Booking not found." });
+        }
+
+        // Respond with a success message
+        res.json({ message: "Booking updated successfully", booking });
+    } catch (error) {
+        console.error("Error updating booking:", error);
+        res.status(500).json({ error: "Failed to update booking" });
+    }
+});
+
+app.get("/orders", isLoggedIn, async (req, res) => {
+    try {
+        // Fetch all bookings from the database
+        const bookings = await Booking.find({});
+        res.render("order", { bookings }); // Render the 'order.ejs' template and pass the bookings
+    } catch (error) {
+        console.error("Error fetching bookings:", error);
+        req.flash("error", "Failed to load orders.");
+        res.redirect("/");
+    }
+});
 
 
 // app.get("/demouser", async(req,res)=>{

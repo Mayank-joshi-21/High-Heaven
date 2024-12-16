@@ -14,8 +14,15 @@
           <p class="card-text">&#8377;<%= listing.price.toLocaleString("en-IN") %><!-- number formatting ke liye toLocaleString ka use correct hai --></p>
           <p class="card-text"><%= listing.location %></p>
           <p class="card-text"><%= listing.country %></p>
-        </div>  
-    </div>
+            <button class="btn search-btn booked" onclick="goToOrdersPage()">Booked Info</button>
+          <!-- Button to go to orders page -->
+        <script>
+         // Function to navigate to orders page
+        function goToOrdersPage() {
+        window.location.href = "/orders"; // Redirect to the orders page
+        }
+        </script>    
+        </div>
     <br>
 
     <% if (currUser && currUser._id.equals(listing.owner._id)) { %>
@@ -28,8 +35,8 @@
         </div>
     <% } %>
 
-    <div class="row mt-4 mb-1">
-        <div class="col-md-6 mx-auto">
+    <div class="row mt-4 mb-1 ">
+        <div class="col-md-12 mx-auto">
             <div class="card shadow-sm">
                 <div class="card-body m-3">
                     <h5 id="price" data-price="<%= listing.price %>">
@@ -74,6 +81,7 @@
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </div>

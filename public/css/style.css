@@ -129,3 +129,11 @@
     .green{
         background-color: #30a47c !important;
     }
+    .booked{
+        height:50px;
+    }
+
+    .side{
+        display: flex;
+        
+    }
