@@ -1,0 +1,141 @@
+<% layout("/layouts/boilerplate") %>
+<!-- <script>
+    const mapToken= mapToken;
+</script> -->
+<div class="row mt-3">
+    <div class="col-6 offset-3 mb-3"><!-- offset-3 ko offset-2 mein change kiya so it's more centered -->
+        <h3><%= listing.title %></h3>
+    </div>
+    <div class="card col-6 offset-3 show-card listing-card" >
+        <img src="<%=listing.image.url %>" class="card-img-top show-img" alt="listing_image">
+        <div class="card-body">
+          <p class="card-text">Owned by <i><%=listing.owner.username %></i></p>
+          <p class="card-text"><%= listing.description %></p>
+          <p class="card-text">&#8377;<%= listing.price.toLocaleString("en-IN") %><!-- number formatting ke liye toLocaleString ka use correct hai --></p>
+          <p class="card-text"><%= listing.location %></p>
+          <p class="card-text"><%= listing.country %></p>
+        </div>  
+    </div>
+    <br>
+
+    <% if (currUser && currUser._id.equals(listing.owner._id)) { %>
+        <!-- Hinglish Comment: Conditional check refined, ensure listing.owner exists -->
+        <div class="btns">
+            <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
+            <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" style="display:inline;">
+                <button class="btn btn-dark offset-5">Delete</button>
+            </form>
+        </div>
+    <% } %>
+
+    <div class="row mt-4 mb-1">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body m-3">
+                    <h5 id="price" data-price="<%= listing.price %>">
+                        &#8377;<%= listing.price.toLocaleString("en-IN") %> <small class="text-muted">per night</small>
+                    </h5>
+                    
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="checkin" class="form-label">Check-in</label>
+                                <input type="date" id="checkin" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="checkout" class="form-label">Check-out</label>
+                                <input type="date" id="checkout" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="guests" class="form-label">Guests</label>
+                            <select id="guests" class="form-select" required>
+                                <option selected>2 Guests</option>
+                                <option>1 Guest</option>
+                                <option>3 Guests</option>
+                                <option>4 Guests</option>
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-primary btn-lg green" onclick="payNow()">Reserve</button>
+                        </div>
+                    </form>
+                    <p class="text-muted mt-3 text-center">You won't be charged yet</p>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <span>&#8377;<%= listing.price.toLocaleString("en-IN") %></span>
+                        <span>&#8377;<%= listing.price.toLocaleString("en-IN") %></span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Total</span>
+                        <span>&#8377;<%= listing.price.toLocaleString("en-IN") %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+   
+    <div class="col-8 offset-3 mb-3">
+        <% if(currUser){%>
+        <hr>
+        <h4>Leave a Review</h4>
+        <form action="/listings/<%=listing.id%>/reviews" method="POST" novalidate class="needs-validation">
+           
+            <div class="mb-3 mt-3">
+                <label for="rating" class="form-label">Rating</label>
+            <fieldset class="starability-slot">
+                <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
+                <input type="radio" id="first-rate1" name="review[rating]g" value="1" />
+                <label for="first-rate1" title="Terrible">1 star</label>
+                <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                <label for="first-rate2" title="Not good">2 stars</label>
+                <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                <label for="first-rate3" title="Average">3 stars</label>
+                <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                <label for="first-rate4" title="Very good">4 stars</label>
+                <input type="radio" id="first-rate5" name="rev  iew[rating]" value="5" />
+                <label for="first-rate5" title="Amazing">5 stars</label>
+              </fieldset>
+            </div>
+
+            <div class="mb-3 mt-3" >
+                <label for="comment" class="form-label" >Comments</label>
+                <textarea name="review[comment]" id="comment" cols="30" rows="5" class="form-control" required></textarea>
+                <div class="invalid-feedback">Please add some comments for review</div>
+            </div>
+            <button class="btn btn-outline-dark">Submit</button>
+        </form>
+        <hr>
+        <% } %>
+        
+        <% if(listing.reviews.length>0) {%>
+        <div class="row">
+            <p><b>All Reviews</b></p>
+        <%for(review of listing.reviews){ %>
+        <div class="card col-5 ms-3 mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@<%=review.author.username %></h5>
+                <p class="starability-result card-text" data-rating="<%=review.rating%>"></p>
+                <p class="card-text"><%=review.comment%></p>
+              
+            </div>
+            <form class="mb-3 mt-3" method="POST" action="/listings/<%=listing._id%>/reviews/<%=review._id %>?_method=DELETE">
+                <button class="btn btn-sm btn-dark">Delete</button>
+            </form>
+        </div>
+        <%}%>
+    </div>   
+        <% } %>
+    </div>
+    <div class="col-8 offset-3 mb-3">
+        <h3>Location</h3>
+        <div id="map">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6883.5751161215785!2d78.46390719386054!3d30.38538984901423!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39091d62d650c6a9%3A0xd77d12bfa4ef972b!2sTehri%2C%20Uttarakhand!5e0!3m2!1sen!2sin!4v1733490045466!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div> 
+</div>
+
+<!-- <script src="/js/map.js"></script> -->
